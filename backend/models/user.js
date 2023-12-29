@@ -20,10 +20,11 @@ const userSchema = new Schema({
     required: true,
     minlength: 6
   },
-  userRole: {
+  role: {
     type: String,
-    required: true,
-  }
+    enum: ["customer", "admin", "manager"],
+    default: "customer"
+  },
 })
 
 const User = mongoose.model("User", userSchema);

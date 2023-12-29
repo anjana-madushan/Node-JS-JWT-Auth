@@ -5,9 +5,9 @@ import jsonwebtoken from 'jsonwebtoken';
 
 export const signUp = async (req, res) => {
 
-  const { name, mobile, email, password, userRole } = req.body;
+  const { name, mobile, email, password, role } = req.body;
   //validation for all the input fields
-  if (!name || !mobile || !email || !password || !userRole) {
+  if (!name || !mobile || !email || !password) {
     return res.status(422).json({ message: "All feilds should be filled" })
   }
   try {
@@ -38,7 +38,7 @@ export const signUp = async (req, res) => {
       mobile,
       email,
       password: hashedpassword,
-      userRole,
+      role: role,
     });
 
     await user.save();
