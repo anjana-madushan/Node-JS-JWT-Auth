@@ -4,10 +4,13 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { DBConnection } from './config/db.js';
 import router from './routes/user.js';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use('/auth', router);
 

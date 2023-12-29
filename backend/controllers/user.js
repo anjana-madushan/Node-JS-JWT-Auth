@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import User from "../models/user.js";
 import { CreateToken } from '../middlewares/token.js';
+import jsonwebtoken from 'jsonwebtoken';
 
 export const signUp = async (req, res) => {
 
@@ -53,8 +54,6 @@ export const login = async (req, res) => {
 
   const { email, password } = req.body;
 
-  console.log(email, password)
-
   //checking whether pasword and login fields are filled or not 
   if (!email || !password) {
     return res.status(422).json({ message: "All feilds should be filled" })
@@ -73,12 +72,12 @@ export const login = async (req, res) => {
     if (!isPasswordCorrect) {
       return res.status(400).json({ message: "Invalid password, Check it and try again" })
     }
-    const token = CreateToken(loggedUser._id)
+    const token = CreateToken(loggedUser._id);
 
     //Create and setting a cookie with the user's ID and token
     res.cookie(String(loggedUser._id), token, {
       path: "/",
-      expires: new Date(Date.now() + 1000 * 60 * 20),
+      expires: new Date(Date.now() + 1000 * 29),
       httpOnly: true,//if this option isn't here cookie will be visible to the frontend
       sameSite: "lax"
     })
@@ -88,6 +87,43 @@ export const login = async (req, res) => {
   } catch (err) {
     console.log(err)
   }
+}
 
+export const logout = (req, res) => {
+  const userId = req.userId;//request user Id from the token
+  const cookies = req.headers.cookie;//request cookie from the header
 
+  //extracting token from the cookies
+  const previousToken = cookies.split("=")[1];
+
+  //if token is not found return this response
+  if (!previousToken) {
+    return res.status(400).json({ message: "Couldn't find token" });
+  }
+
+  //varifying token using secret key from the environmental variables
+  jsonwebtoken.verify(String(previousToken), process.env.JWTAUTHSECRET, (err) => {
+    if (err) {
+      console.log(err);
+      return res.status(403).json({ message: "Authentication failed" });//if not verified return this error
+    }
+
+    res.clearCookie(`${userId}`);
+    req.cookies[`${userId}`] = "";
+    return res.status(200).json({ message: "Successfully Logged Out" });
+  });
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const allusers = await User.find();
+    if (!allusers) {
+      return res.status(404).json({ message: "There are not any users" });
+    }
+    else {
+      res.status(200).json({ allusers })
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
