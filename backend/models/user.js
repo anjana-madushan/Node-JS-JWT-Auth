@@ -20,6 +20,10 @@ const userSchema = new Schema({
     required: true,
     minlength: 6
   },
+  userRole: {
+    type: String,
+    required: true,
+  }
 })
 
 const User = mongoose.model("User", userSchema);
