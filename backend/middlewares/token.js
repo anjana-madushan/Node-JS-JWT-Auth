@@ -4,8 +4,6 @@ export const CreateToken = (id) => {
   return jsonwebtoken.sign({ id }, process.env.JWTAUTHSECRET, { expiresIn: '30s' })
 }
 
-let decode;
-
 export const checkToken = async (req, res, next) => {
   try {
     const cookies = req.headers.cookie;
@@ -19,12 +17,15 @@ export const checkToken = async (req, res, next) => {
       return res.status(403).json({ message: "A token is required" })
     }
     else {
-      decode = jsonwebtoken.verify(token, process.env.JWTAUTHSECRET);
-      req.userId = decode._id;
+      jsonwebtoken.verify(token, process.env.JWTAUTHSECRET, (err, user) => {
+        if (err) {
+          return res.status(401).json({ message: "Invalid Token" })
+        }
+        req.userId = user.id;
+      });
       next();
     }
   } catch (err) {
-    res.status(401).json({ message: "Invalid Token" })
-    console.log(err)
+    return res.status(401).json({ message: "Error in the token checking" });
   }
 }

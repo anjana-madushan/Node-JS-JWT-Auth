@@ -90,7 +90,6 @@ export const login = async (req, res) => {
 }
 
 export const logout = (req, res) => {
-  const userId = req.userId;//request user Id from the token
   const cookies = req.headers.cookie;//request cookie from the header
 
   //extracting token from the cookies
@@ -102,14 +101,13 @@ export const logout = (req, res) => {
   }
 
   //varifying token using secret key from the environmental variables
-  jsonwebtoken.verify(String(previousToken), process.env.JWTAUTHSECRET, (err) => {
+  jsonwebtoken.verify(String(previousToken), process.env.JWTAUTHSECRET, (err, user) => {
     if (err) {
       console.log(err);
       return res.status(403).json({ message: "Authentication failed" });//if not verified return this error
     }
-
-    res.clearCookie(`${userId}`);
-    req.cookies[`${userId}`] = "";
+    res.clearCookie(`${user.id}`);
+    req.cookies[`${user.id}`] = "";
     return res.status(200).json({ message: "Successfully Logged Out" });
   });
 };
@@ -125,5 +123,6 @@ export const getAllUsers = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ message: "Error in getting the Users" })
   }
 }
