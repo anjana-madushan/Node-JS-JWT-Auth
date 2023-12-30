@@ -78,7 +78,7 @@ export const login = async (req, res) => {
     //Create and setting a cookie with the user's ID and token
     res.cookie(String(loggedUser._id), token, {
       path: "/",
-      expires: new Date(Date.now() + 1000 * 29),
+      expires: new Date(Date.now() + 1000 * 59),
       httpOnly: true,//if this option isn't here cookie will be visible to the frontend
       sameSite: "lax"
     })

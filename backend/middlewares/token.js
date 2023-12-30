@@ -2,7 +2,7 @@ import jsonwebtoken from 'jsonwebtoken';
 import User from '../models/user.js';
 
 export const CreateToken = (id) => {
-  return jsonwebtoken.sign({ id }, process.env.JWTAUTHSECRET, { expiresIn: '30s' })
+  return jsonwebtoken.sign({ id }, process.env.JWTAUTHSECRET, { expiresIn: '60s' })
 }
 
 export const checkToken = async (req, res, next) => {
@@ -18,34 +18,27 @@ export const checkToken = async (req, res, next) => {
       return res.status(403).json({ message: "A token is required" })
     }
     else {
-      jsonwebtoken.verify(token, process.env.JWTAUTHSECRET, (err, user) => {
-        if (err) {
-          return res.status(401).json({ message: "Invalid Token" })
-        }
-        req.userId = user.id;
-      });
+      const decode = jsonwebtoken.verify(token, process.env.JWTAUTHSECRET);
+      req.userId = decode.id;
       next();
     }
   } catch (err) {
-    return res.status(401).json({ message: "Error in the token checking" });
+    return res.status(401).json({ message: "Error in the token checking", err });
   }
 }
 
-export const checkRole = (requiredRole) => async (req, res, next) => {
+export const checkRole = (requiredRoles) => async (req, res, next) => {
   try {
+    const convertedRoles = requiredRoles.map(role => role.toLowerCase());
     const userId = req.userId;
-    console.log(userId);
     const user = await User.findById(userId);
 
-    console.log(user);
-
     const userRole = user.role;
-    if (userRole.toLowerCase() !== requiredRole.toLowerCase()) {
+    if (!convertedRoles.includes(userRole.toLowerCase())) {
       return res.status(403).json({ message: 'You are unauthorized' });
     }
     next();
   } catch (error) {
-    console.error('Error occured in authorization:', error);
-    return res.status(500).json({ message: 'Error occured in authorization' });
+    return res.status(500).json({ message: 'Error occured in authorization', error });
   }
 };

@@ -6,6 +6,6 @@ import { checkToken, checkRole } from '../middlewares/token.js';
 router.post("/signUp", signUp);
 router.post("/login", login);
 router.post("/logout", checkToken, logout);
-router.get('/', checkToken, checkRole('admin'), getAllUsers);
+router.get('/', checkToken, checkRole(['admin', 'customer']), getAllUsers);
 
 export default router;
