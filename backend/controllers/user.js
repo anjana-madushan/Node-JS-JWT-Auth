@@ -83,8 +83,8 @@ export const login = async (req, res) => {
       sameSite: "lax"
     })
 
-    //we send this msg along with the token and user details
-    return res.status(200).json({ message: "Successfully logged in", User: loggedUser, token })
+    //send this message along with logged user details
+    return res.status(200).json({ message: "Successfully logged in", User: loggedUser })
   } catch (err) {
     console.log(err)
   }
