@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import User from "../models/user.js";
-import { CreateToken } from '../middlewares/token.js';
+import { CreateToken } from '../middlewares/middlewares.js';
 import jsonwebtoken from 'jsonwebtoken';
 
 export const signUp = async (req, res) => {
